@@ -15,6 +15,12 @@ assmt$Category <- substring(assmt$DataCategory, 1, 1)  # combine subcategories
 categories <- aggregate(Method~Category, assmt, length)
 names(categories) <- c("Category", "Stocks")
 
+levels <- sort(unique(assmt$DataCategory))
+levels <- levels[order(sub("\\.([0-9])$", ".0\\1", levels))]  # 3.9 < 3.14, etc.
+assmt$DataCategory <- ordered(assmt$DataCategory, levels)
+subcategories <- aggregate(Method~DataCategory, assmt, length)
+names(subcategories) <- c("DataCategory", "Stocks")
+
 ## Show methods of interest that are used for each category
 m <- aggregate(Method~Category, assmt, function(m) sort(unique(m)))
 skip <- c("Age-based", "Age-length based", "Biomass model", "Salmon", "SCA",
@@ -32,5 +38,6 @@ names(models) <- c("Model", "Assessments")
 
 ## Write tables
 write.taf(categories, dir="output")
+write.taf(subcategories, dir="output")
 write.taf(methods, dir="output", quote=TRUE)
 write.taf(models, dir="output")
